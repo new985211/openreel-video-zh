@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Key,
   Plus,
@@ -30,6 +31,7 @@ import { MasterPasswordDialog } from "./MasterPasswordDialog";
 import { toast } from "../../../stores/notification-store";
 
 export const ApiKeysPanel: React.FC = () => {
+  const { t } = useTranslation();
   const { addConfiguredService, removeConfiguredService } =
     useSettingsStore();
 
@@ -67,7 +69,7 @@ export const ApiKeysPanel: React.FC = () => {
         await setupMasterPassword(password);
         setPasswordDialogMode(null);
         await refreshState();
-        toast.success("Master password set", "Your API keys will be encrypted with AES-256-GCM.");
+        toast.success(t('settings.apiKeys.toasts.masterPasswordSet'), t('settings.apiKeys.toasts.masterPasswordSetDesc'));
         return true;
       }
 
@@ -76,7 +78,7 @@ export const ApiKeysPanel: React.FC = () => {
         if (success) {
           setPasswordDialogMode(null);
           await refreshState();
-          toast.success("Session unlocked", "You can now manage API keys.");
+          toast.success(t('settings.apiKeys.toasts.sessionUnlocked'), t('settings.apiKeys.toasts.sessionUnlockedDesc'));
         }
         return success;
       }
@@ -86,7 +88,7 @@ export const ApiKeysPanel: React.FC = () => {
         if (success) {
           setPasswordDialogMode(null);
           await refreshState();
-          toast.success("Password changed", "All keys have been re-encrypted.");
+          toast.success(t('settings.apiKeys.toasts.passwordChanged'), t('settings.apiKeys.toasts.passwordChangedDesc'));
         }
         return success;
       }
@@ -109,9 +111,9 @@ export const ApiKeysPanel: React.FC = () => {
         setNewKeyValue("");
         setAddingService(null);
         await refreshState();
-        toast.success(`${service.label} key saved`, "API key encrypted and stored.");
+        toast.success(t('settings.apiKeys.toasts.keySaved', { service: service.label }), t('settings.apiKeys.toasts.keySavedDesc'));
       } catch (err) {
-        toast.error("Failed to save", err instanceof Error ? err.message : "Unknown error");
+        toast.error(t('settings.apiKeys.toasts.saveFailed'), err instanceof Error ? err.message : t('settings.apiKeys.toasts.unknownError'));
       }
     },
     [newKeyValue, addConfiguredService, refreshState],
@@ -129,9 +131,9 @@ export const ApiKeysPanel: React.FC = () => {
           return next;
         });
         await refreshState();
-        toast.success(`${service?.label ?? serviceId} key removed`);
+        toast.success(t('settings.apiKeys.toasts.keyRemoved', { service: service?.label ?? serviceId }));
       } catch (err) {
-        toast.error("Failed to delete", err instanceof Error ? err.message : "Unknown error");
+        toast.error(t('settings.apiKeys.toasts.deleteFailed'), err instanceof Error ? err.message : t('settings.apiKeys.toasts.unknownError'));
       }
     },
     [removeConfiguredService, refreshState],
@@ -150,7 +152,7 @@ export const ApiKeysPanel: React.FC = () => {
         setShowKey((prev) => ({ ...prev, [serviceId]: true }));
       }
     } catch (err) {
-      toast.error("Failed to decrypt", err instanceof Error ? err.message : "Unknown error");
+      toast.error(t('settings.apiKeys.toasts.decryptFailed'), err instanceof Error ? err.message : t('settings.apiKeys.toasts.unknownError'));
     }
   }, [revealedKeys]);
 
@@ -174,15 +176,14 @@ export const ApiKeysPanel: React.FC = () => {
           <Shield size={32} className="text-primary" />
         </div>
         <h3 className="text-lg font-medium text-text-primary mb-2">
-          Secure API Key Storage
+          {t('settings.apiKeys.title')}
         </h3>
         <p className="text-sm text-text-muted mb-6 max-w-sm">
-          Set up a master password to encrypt and store your API keys locally.
-          Keys are encrypted with AES-256-GCM and never leave your browser.
+          {t('settings.apiKeys.description')}
         </p>
         <Button onClick={() => setPasswordDialogMode("setup")}>
           <KeyRound size={16} className="mr-2" />
-          Set Up Master Password
+          {t('settings.apiKeys.setUpPassword')}
         </Button>
 
         {passwordDialogMode && (
@@ -205,14 +206,14 @@ export const ApiKeysPanel: React.FC = () => {
           <Lock size={32} className="text-amber-500" />
         </div>
         <h3 className="text-lg font-medium text-text-primary mb-2">
-          Session Locked
+          {t('settings.apiKeys.sessionLocked')}
         </h3>
         <p className="text-sm text-text-muted mb-6 max-w-sm">
-          Enter your master password to view and manage API keys.
+          {t('settings.apiKeys.sessionLockedDesc')}
         </p>
         <Button onClick={() => setPasswordDialogMode("unlock")}>
           <Unlock size={16} className="mr-2" />
-          Unlock
+          {t('settings.apiKeys.unlock')}
         </Button>
 
         {passwordDialogMode && (
@@ -245,11 +246,11 @@ export const ApiKeysPanel: React.FC = () => {
             onClick={() => setPasswordDialogMode("change")}
           >
             <Key size={14} className="mr-1" />
-            Change Password
+            {t('settings.apiKeys.changePassword')}
           </Button>
           <Button variant="outline" size="sm" onClick={handleLock}>
             <Lock size={14} className="mr-1" />
-            Lock
+            {t('settings.apiKeys.lock')}
           </Button>
         </div>
       </div>
@@ -286,14 +287,14 @@ export const ApiKeysPanel: React.FC = () => {
                   <button
                     onClick={() => handleRevealKey(stored.id)}
                     className="p-1.5 rounded hover:bg-background-tertiary text-text-muted hover:text-text-primary transition-colors"
-                    title={isRevealed ? "Hide key" : "Show key"}
+                    title={isRevealed ? t('settings.apiKeys.hideKey') : t('settings.apiKeys.showKey')}
                   >
                     {isRevealed ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                   <button
                     onClick={() => handleDeleteKey(stored.id)}
                     className="p-1.5 rounded hover:bg-error/10 text-text-muted hover:text-error transition-colors"
-                    title="Delete key"
+                    title={t('settings.apiKeys.deleteKey')}
                   >
                     <Trash2 size={14} />
                   </button>
@@ -327,15 +328,14 @@ export const ApiKeysPanel: React.FC = () => {
           <div className="flex items-center gap-2 mb-3">
             <Plus size={14} className="text-primary" />
             <span className="text-sm font-medium text-text-primary">
-              Add{" "}
-              {SERVICE_REGISTRY.find((s) => s.id === addingService)?.label} Key
+              {t('settings.apiKeys.addKeyPrefix')}{SERVICE_REGISTRY.find((s) => s.id === addingService)?.label}{t('settings.apiKeys.addKeySuffix')}
             </span>
           </div>
           <Input
             type="password"
             value={newKeyValue}
             onChange={(e) => setNewKeyValue(e.target.value)}
-            placeholder="Paste your API key here"
+            placeholder={t('settings.apiKeys.pasteApiKey')}
             autoFocus
             className="mb-3 font-mono text-xs"
           />
@@ -348,21 +348,21 @@ export const ApiKeysPanel: React.FC = () => {
                 setNewKeyValue("");
               }}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               size="sm"
               onClick={() => handleSaveKey(addingService)}
               disabled={!newKeyValue.trim()}
             >
-              Save Key
+              {t('settings.apiKeys.saveKey')}
             </Button>
           </div>
         </div>
       ) : availableServices.length > 0 ? (
         <div>
           <h4 className="text-sm font-medium text-text-secondary mb-3">
-            Add API Key
+            {t('settings.apiKeys.addApiKey')}
           </h4>
           <div className="grid gap-2">
             {availableServices.map((service) => (

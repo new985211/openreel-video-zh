@@ -144,13 +144,13 @@ const useEngineInitialization = () => {
 
         setBridgesReady(true);
       } catch (error) {
-        console.error("Failed to initialize engines/bridges:", error);
+        console.error(t('editor.failedToInit'), error);
         if (isMounted) {
           setLocalError(
-            error instanceof Error ? error.message : "Unknown error",
+            error instanceof Error ? error.message : t('editor.unknownError'),
           );
           setInitStatus(
-            `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+            `${t('editor.errorPrefix')}${error instanceof Error ? error.message : t('editor.unknownError')}`,
           );
         }
       }
@@ -500,7 +500,7 @@ export const EditorInterface: React.FC = () => {
             className="h-full shrink-0 min-w-0 overflow-hidden"
             style={{ width: assetsWidth }}
           >
-            <PanelErrorBoundary name="Assets Panel">
+            <PanelErrorBoundary name={t('editor.panels.assets')}>
               <AssetsPanel />
             </PanelErrorBoundary>
           </div>
@@ -514,7 +514,7 @@ export const EditorInterface: React.FC = () => {
           </div>
 
           <div className="min-h-0 min-w-0 flex-1 flex overflow-hidden">
-            <PanelErrorBoundary name="Preview">
+            <PanelErrorBoundary name={t('editor.panels.preview')}>
               <Preview />
             </PanelErrorBoundary>
           </div>
@@ -531,7 +531,7 @@ export const EditorInterface: React.FC = () => {
             className="h-full shrink-0 min-w-0 overflow-hidden"
             style={{ width: inspectorWidth }}
           >
-            <PanelErrorBoundary name="Inspector">
+            <PanelErrorBoundary name={t('editor.panels.inspector')}>
               <InspectorPanel />
             </PanelErrorBoundary>
           </div>
@@ -541,7 +541,7 @@ export const EditorInterface: React.FC = () => {
               ref={keyframePanelRef}
               className="h-full shrink-0 min-w-0 overflow-hidden"
             >
-              <PanelErrorBoundary name="Keyframe Editor">
+              <PanelErrorBoundary name={t('editor.panels.keyframeEditor')}>
                 <KeyframeEditorPanel
                   clip={selectedClip}
                   onClose={() => setKeyframeEditorOpen(false)}
@@ -568,7 +568,7 @@ export const EditorInterface: React.FC = () => {
 
         {panels.audioMixer?.visible && (
           <div ref={audioMixerRef} className="shrink-0">
-            <PanelErrorBoundary name="Audio Mixer">
+            <PanelErrorBoundary name={t('editor.panels.audioMixer')}>
               <AudioMixer
                 visible
                 onClose={() => setPanelVisible("audioMixer", false)}
@@ -581,7 +581,7 @@ export const EditorInterface: React.FC = () => {
           style={{ height: timelineHeight }}
           className="min-h-0 shrink-0 flex flex-col overflow-hidden"
         >
-          <PanelErrorBoundary name="Timeline">
+          <PanelErrorBoundary name={t('editor.panels.timeline')}>
             <Timeline />
           </PanelErrorBoundary>
         </div>

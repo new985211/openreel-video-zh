@@ -1,9 +1,9 @@
 export interface TourStep {
   id: string;
   target: string | null;
-  title: string;
-  description: string;
-  tips?: string[];
+  titleKey: string;
+  descKey: string;
+  tipKeys?: string[];
   position: "center" | "top" | "bottom" | "left" | "right";
 }
 
@@ -11,61 +11,64 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "welcome",
     target: null,
-    title: "Welcome to OpenReel",
-    description: "Let's take a quick tour of the editor",
+    titleKey: "tour.editorTour.welcome",
+    descKey: "tour.editorTour.welcomeDesc",
     position: "center",
   },
   {
     id: "assets",
     target: "[data-tour='assets']",
-    title: "Assets Panel",
-    description: "Your creative toolkit. Import media, generate AI content, add shapes, stickers, and custom SVGs.",
-    tips: [
-      "Drag & drop videos, audio, images",
-      "AI Gen tab: generate images & backgrounds with AI",
-      "Shapes & custom SVG imports",
-      "Stickers, backgrounds & overlays",
+    titleKey: "tour.editorTour.assets",
+    descKey: "tour.editorTour.assetsDesc",
+    tipKeys: [
+      "tour.editorTour.assetsT1",
+      "tour.editorTour.assetsT2",
+      "tour.editorTour.assetsT3",
+      "tour.editorTour.assetsT4",
     ],
     position: "right",
   },
   {
     id: "timeline",
     target: "[data-tour='timeline']",
-    title: "Timeline",
-    description: "Arrange and edit your clips. Drag to move, drag edges to trim.",
-    tips: ["Press S to split clips", "Space to play/pause", "Scroll to zoom"],
+    titleKey: "tour.editorTour.timeline",
+    descKey: "tour.editorTour.timelineDesc",
+    tipKeys: [
+      "tour.editorTour.timelineT1",
+      "tour.editorTour.timelineT2",
+      "tour.editorTour.timelineT3",
+    ],
     position: "top",
   },
   {
     id: "preview",
     target: "[data-tour='preview']",
-    title: "Preview",
-    description: "Watch your video in real-time as you edit.",
-    tips: [
-      "Arrow keys for frame navigation",
-      "Click to scrub",
-      "Fullscreen available",
+    titleKey: "tour.editorTour.preview",
+    descKey: "tour.editorTour.previewDesc",
+    tipKeys: [
+      "tour.editorTour.previewT1",
+      "tour.editorTour.previewT2",
+      "tour.editorTour.previewT3",
     ],
     position: "left",
   },
   {
     id: "inspector",
     target: "[data-tour='inspector']",
-    title: "Inspector",
-    description:
-      "Select a clip to see its properties. Add effects, adjust colors, animate.",
-    tips: [
-      "Transform, effects, color grading",
-      "Keyframe any property",
-      "AI-powered tools",
+    titleKey: "tour.editorTour.inspector",
+    descKey: "tour.editorTour.inspectorDesc",
+    tipKeys: [
+      "tour.editorTour.inspectorT1",
+      "tour.editorTour.inspectorT2",
+      "tour.editorTour.inspectorT3",
     ],
     position: "left",
   },
   {
     id: "complete",
     target: null,
-    title: "You're Ready!",
-    description: "Start creating! Press ? anytime for keyboard shortcuts.",
+    titleKey: "tour.editorTour.ready",
+    descKey: "tour.editorTour.readyDesc",
     position: "center",
   },
 ];

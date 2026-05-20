@@ -14,6 +14,7 @@ import { calculateSnap } from "./utils";
 import { useTimelineStore } from "../../../stores/timeline-store";
 import { useUIStore } from "../../../stores/ui-store";
 import { useProjectStore } from "../../../stores/project-store";
+import { useTranslation } from "react-i18next";
 import { toast } from "../../../stores/notification-store";
 
 type GraphicClipUnion = ShapeClip | SVGClip | StickerClip;
@@ -85,6 +86,7 @@ export const TrackLane: React.FC<TrackLaneProps> = ({
   onKeyframeDelete,
   selectedKeyframeIds = [],
 }) => {
+  const { t } = useTranslation();
   const { isTrackExpanded, playheadPosition } = useTimelineStore();
   const isExpanded = isTrackExpanded(track.id);
   const { snapSettings } = useUIStore();
@@ -141,7 +143,7 @@ export const TrackLane: React.FC<TrackLaneProps> = ({
                 .project.mediaLibrary.items.find(i => !beforeIds.has(i.id));
               if (newItem) {
                 await addClip(track.id, newItem.id, snapResult.time);
-                toast.success(`Added to ${track.name}`, file.name);
+                toast.success(t('timeline.addedToTrack', { name: track.name }), file.name);
               }
             }
           } catch (err) {
@@ -282,7 +284,7 @@ export const TrackLane: React.FC<TrackLaneProps> = ({
         {isDragOver && (
           <div className="absolute inset-0 border-2 border-dashed border-primary/50 rounded pointer-events-none flex items-center justify-center">
             <span className="text-xs text-primary bg-background/80 px-2 py-1 rounded">
-              Drop to add clip
+              {t('timeline.dropToAddClip')}
             </span>
           </div>
         )}

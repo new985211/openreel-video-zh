@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ChevronDown,
   Plus,
@@ -12,23 +13,24 @@ import { Input } from "@openreel/ui";
 import { useProjectStore } from "../../stores/project-store";
 import { autoSaveManager, type AutoSaveMetadata } from "../../services/auto-save";
 
-function formatTimeAgo(timestamp: number): string {
-  const seconds = Math.floor((Date.now() - timestamp) / 1000);
-  if (seconds < 60) return "just now";
-  if (seconds < 3600) {
-    const mins = Math.floor(seconds / 60);
-    return `${mins}m ago`;
-  }
-  if (seconds < 86400) {
-    const hours = Math.floor(seconds / 3600);
-    return `${hours}h ago`;
-  }
-  const days = Math.floor(seconds / 86400);
-  return `${days}d ago`;
-}
-
 export const ProjectSwitcher: React.FC = () => {
+  const { t } = useTranslation();
   const { project, createNewProject, recoverFromAutoSave, renameProject } = useProjectStore();
+
+  function formatTimeAgo(timestamp: number): string {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    if (seconds < 60) return t("recentProjects.justNow");
+    if (seconds < 3600) {
+      const mins = Math.floor(seconds / 60);
+      return t("recentProjects.minsAgo", { mins });
+    }
+    if (seconds < 86400) {
+      const hours = Math.floor(seconds / 3600);
+      return t("recentProjects.hoursAgo", { hours });
+    }
+    const days = Math.floor(seconds / 86400);
+    return t("recentProjects.daysAgo", { days });
+  }
   const [isOpen, setIsOpen] = useState(false);
   const [savedProjects, setSavedProjects] = useState<AutoSaveMetadata[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -146,7 +148,7 @@ export const ProjectSwitcher: React.FC = () => {
         <div className="absolute top-full left-0 mt-2 w-72 bg-background border border-border rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
           <div className="p-3 border-b border-border">
             <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
-              Current Project
+              {t('recentProjects.currentProject')}
             </div>
             {isEditing ? (
               <div className="flex items-center gap-2">
@@ -175,7 +177,7 @@ export const ProjectSwitcher: React.FC = () => {
                 <button
                   onClick={() => setIsEditing(true)}
                   className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-background-tertiary transition-colors opacity-0 group-hover:opacity-100"
-                  title="Rename project"
+                  title={t('recentProjects.renameProject')}
                 >
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
@@ -192,8 +194,8 @@ export const ProjectSwitcher: React.FC = () => {
                 <Plus className="w-4 h-4" />
               </div>
               <div className="flex-1">
-                <div className="text-sm font-medium text-text-primary">New Project</div>
-                <div className="text-xs text-text-muted">Start fresh with a new canvas</div>
+                <div className="text-sm font-medium text-text-primary">{t('recentProjects.newProject')}</div>
+                <div className="text-xs text-text-muted">{t('recentProjects.newProjectDesc')}</div>
               </div>
             </button>
           </div>
@@ -203,7 +205,7 @@ export const ProjectSwitcher: React.FC = () => {
               <div className="px-3 py-2 border-t border-border">
                 <div className="text-xs font-medium text-text-muted uppercase tracking-wider flex items-center gap-2">
                   <Clock className="w-3 h-3" />
-                  Recent Projects
+                  {t('recentProjects.title')}
                 </div>
               </div>
               <div className="max-h-64 overflow-y-auto px-2 pb-2">

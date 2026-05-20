@@ -169,7 +169,7 @@ export const KeyboardShortcutsOverlay: React.FC<
               className="flex items-center gap-2 px-3 py-2 bg-background-tertiary border border-border rounded-lg text-sm text-text-secondary hover:text-text-primary transition-colors"
             >
               <span>
-                {presets.find((p) => p.id === activePreset)?.name || "Preset"}
+                {presets.find((p) => p.id === activePreset)?.name || t('keyboard.presetFallback')}
               </span>
               <ChevronDown size={14} />
             </button>

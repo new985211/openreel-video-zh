@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, Zap, Captions, Loader2, Sparkles, Trash2 } from "lucide-react";
 import { useProjectStore } from "../../stores/project-store";
 import { useTimelineStore } from "../../stores/timeline-store";
@@ -112,14 +113,17 @@ const Section: React.FC<{
   );
 };
 
-const EmptyState: React.FC = () => (
-  <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-50">
-    <p className="text-sm text-text-secondary mb-2">No selection</p>
-    <p className="text-xs text-text-muted">
-      Select a clip to view its properties
-    </p>
-  </div>
-);
+const EmptyState: React.FC = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-50">
+      <p className="text-sm text-text-secondary mb-2">{t('inspector.noSelection')}</p>
+      <p className="text-xs text-text-muted">
+        {t('inspector.selectClipHint')}
+      </p>
+    </div>
+  );
+};
 
 const ParticleEffectsSectionWrapper: React.FC<{
   clipId: string;
@@ -190,6 +194,8 @@ const ParticleEffectsSectionWrapper: React.FC<{
 };
 
 export const InspectorPanel: React.FC = () => {
+  const { t } = useTranslation();
+
   // Stores
   const {
     getClip,
@@ -474,7 +480,7 @@ export const InspectorPanel: React.FC = () => {
     if (!selectedClip) return;
     void applyClipEffectWithPlaybackLock(
       selectedClip.id,
-      "Applying background removal",
+      t('inspector.toasts.applyingBackgroundRemoval'),
       () => {
         chromaKeyEngine.enableChromaKey(selectedClip.id);
         chromaKeyEngine.setKeyColor(selectedClip.id, { r: 0, g: 1, b: 0 });
@@ -490,7 +496,7 @@ export const InspectorPanel: React.FC = () => {
     try {
       await applyClipEffectWithPlaybackLock(
         selectedClip.id,
-        "Applying audio cleanup",
+        t('inspector.toasts.applyingAudioCleanup'),
         async () => {
           await initializeAudioBridgeEffects();
           const bridge = getAudioBridgeEffects();
@@ -517,27 +523,27 @@ export const InspectorPanel: React.FC = () => {
             );
 
             if (!result.success) {
-              throw new Error(result.error ?? "Failed to apply noise cleanup");
+              throw new Error(result.error ?? t('inspector.toasts.noiseCleanupApplyFailed'));
             }
           }
 
           setAudioEnhanced(true);
           setTimeout(() => setAudioEnhanced(false), 2000);
           toast.success(
-            "Noise cleanup applied",
-            "Fine-tune or switch presets in Background Noise Removal.",
+            t('inspector.toasts.noiseCleanupApplied'),
+            t('inspector.toasts.noiseCleanupFineTune'),
           );
 
           forceUpdate();
         },
       );
     } catch (error) {
-      console.error("Failed to enhance audio:", error);
+      console.error(t('inspector.toasts.enhanceAudioFailed'), error);
       toast.error(
-        "Could not clean up audio",
+        t('inspector.toasts.couldNotCleanUp'),
         error instanceof Error
           ? error.message
-          : "Noise cleanup could not be applied to this clip.",
+          : t('inspector.toasts.noiseCleanupFailed'),
       );
     } finally {
       setIsEnhancingAudio(false);
@@ -555,7 +561,7 @@ export const InspectorPanel: React.FC = () => {
     if (!selectedClip) return;
     await applyClipEffectWithPlaybackLock(
       selectedClip.id,
-      "Applying auto color",
+      t('inspector.toasts.applyingAutoColor'),
       () => {
         addVideoEffect(selectedClip.id, "saturation");
         addVideoEffect(selectedClip.id, "contrast");
@@ -595,7 +601,7 @@ export const InspectorPanel: React.FC = () => {
     setTranscriptionProgress({
       phase: "extracting",
       progress: 0,
-      message: "Preparing audio...",
+      message: t('inspector.toasts.preparingAudio'),
     });
 
     try {
@@ -606,7 +612,7 @@ export const InspectorPanel: React.FC = () => {
 
       const regularClip = getClip(selectedClip.id);
       if (!regularClip) {
-        throw new Error("Could not find clip data");
+        throw new Error(t('inspector.toasts.clipDataNotFound'));
       }
 
       const subtitles = await transcriptionService.transcribeClip(
@@ -625,7 +631,7 @@ export const InspectorPanel: React.FC = () => {
       setTranscriptionProgress({
         phase: "complete",
         progress: 100,
-        message: `Added ${subtitles.length} subtitles`,
+        message: t('inspector.toasts.addedSubtitles', { count: subtitles.length }),
       });
 
       setTimeout(() => {
@@ -638,7 +644,7 @@ export const InspectorPanel: React.FC = () => {
         phase: "error",
         progress: 0,
         message:
-          error instanceof Error ? error.message : "Transcription failed",
+          error instanceof Error ? error.message : t('inspector.toasts.transcriptionFailed'),
       });
       setTimeout(() => {
         setTranscriptionProgress(null);
@@ -743,9 +749,9 @@ export const InspectorPanel: React.FC = () => {
   );
   const noiseReductionSectionTitle = selectedNoiseReductionEffect
     ? selectedNoiseReductionEffect.enabled
-      ? "Background Noise Removal (Active)"
-      : "Background Noise Removal (Configured)"
-    : "Background Noise Removal";
+      ? t('inspector.sections.backgroundNoiseRemovalActive')
+      : t('inspector.sections.backgroundNoiseRemovalConfigured')
+    : t('inspector.sections.backgroundNoiseRemoval');
   const appliedEditingTemplates =
     selectedTimelineClip?.metadata?.appliedTemplates || [];
   const handleRecipeControlChange = useCallback(
@@ -810,7 +816,7 @@ export const InspectorPanel: React.FC = () => {
 
       const template = getEditingTemplate(templateId);
       if (!template) {
-        toast.error("Recipe unavailable", "This recipe definition is no longer available.");
+        toast.error(t('inspector.toasts.recipeUnavailable'), t('inspector.toasts.recipeUnavailableDesc'));
         return;
       }
 
@@ -824,11 +830,11 @@ export const InspectorPanel: React.FC = () => {
       );
 
       if (!updated) {
-        toast.error("Could not update recipe", "The recipe controls could not be saved for this clip.");
+        toast.error(t('inspector.toasts.couldNotUpdateRecipe'), t('inspector.toasts.couldNotUpdateRecipeDesc'));
         return;
       }
 
-      toast.success("Recipe updated", `${template.name} was updated on this clip.`);
+      toast.success(t('inspector.toasts.recipeUpdated'), t('inspector.toasts.recipeUpdatedDesc', { name: template.name }));
     },
     [
       getEditingTemplate,
@@ -853,7 +859,7 @@ export const InspectorPanel: React.FC = () => {
     >
       <div className="p-5">
         <h3 className="text-sm font-bold text-text-primary mb-5 tracking-tight">
-          Inspector
+          {t('inspector.title')}
         </h3>
 
         {selectedClip ? (
@@ -864,13 +870,13 @@ export const InspectorPanel: React.FC = () => {
                 {selectedClip.id.substring(0, 20)}...
               </p>
               <p className="text-[10px] text-text-muted">
-                Duration: {selectedClip.duration.toFixed(2)}s
+                {t('inspector.duration', { duration: selectedClip.duration.toFixed(2) })}
               </p>
             </div>
 
             {showVideoControls && selectedTimelineClip && (appliedEditingTemplates.length > 0 || (selectedTimelineClip.effects && selectedTimelineClip.effects.length > 0)) && (
               <Section
-                title={`Applied (${appliedEditingTemplates.length + (selectedTimelineClip.effects?.filter((e: { metadata?: { templateSource?: unknown } }) => !e.metadata?.templateSource).length || 0)})`}
+                title={t('inspector.appliedCount', { count: appliedEditingTemplates.length + (selectedTimelineClip.effects?.filter((e: { metadata?: { templateSource?: unknown } }) => !e.metadata?.templateSource).length || 0) })}
                 sectionId="applied-effects"
                 defaultOpen={true}
               >
@@ -900,7 +906,7 @@ export const InspectorPanel: React.FC = () => {
                               {application.name}
                             </p>
                             <span className="text-[9px] text-text-muted capitalize shrink-0">
-                              {application.category?.replace(/-/g, " ") || "recipe"}
+                              {application.category?.replace(/-/g, " ") || t('inspector.recipe')}
                             </span>
                           </div>
                           <div className="flex shrink-0 gap-1">
@@ -919,7 +925,7 @@ export const InspectorPanel: React.FC = () => {
                                     : "text-text-muted hover:text-text-primary"
                                 }`}
                               >
-                                Edit
+                                {t('common.edit')}
                               </button>
                             )}
                             <button
@@ -929,7 +935,7 @@ export const InspectorPanel: React.FC = () => {
                                   application.applicationId,
                                 );
                                 if (!removed) {
-                                  toast.error("Could not remove recipe", "The recipe could not be removed from this clip.");
+                                  toast.error(t('inspector.toasts.couldNotRemoveRecipe'), t('inspector.toasts.couldNotRemoveRecipeDesc'));
                                   return;
                                 }
                                 setRecipeControlValues((current) => {
@@ -972,7 +978,7 @@ export const InspectorPanel: React.FC = () => {
                                 }
                                 className="h-6 px-2.5 rounded border border-border text-[9px] font-medium text-text-secondary hover:text-text-primary transition-colors"
                               >
-                                Reset
+                                {t('common.reset')}
                               </button>
                               <button
                                 onClick={() =>
@@ -984,7 +990,7 @@ export const InspectorPanel: React.FC = () => {
                                 }
                                 className="h-6 px-2.5 rounded bg-primary text-[9px] font-semibold text-black hover:bg-primary/85 transition-colors"
                               >
-                                Update
+                                {t('common.update')}
                               </button>
                             </div>
                           </div>
@@ -1007,7 +1013,7 @@ export const InspectorPanel: React.FC = () => {
                           </p>
                         </div>
                         <span className={`text-[9px] font-medium ${effect.enabled !== false ? "text-green-400" : "text-text-muted"}`}>
-                          {effect.enabled !== false ? "On" : "Off"}
+                          {effect.enabled !== false ? t('common.on') : t('common.off')}
                         </span>
                       </div>
                     ))}
@@ -1016,11 +1022,11 @@ export const InspectorPanel: React.FC = () => {
             )}
 
             {clipType === "video" && (
-              <Section title="AI Auto-Captions" sectionId="auto-captions" defaultOpen={false}>
+              <Section title={t('inspector.sections.aiAutoCaptions')} sectionId="auto-captions" defaultOpen={false}>
                 <div className="space-y-3">
                   <div>
                     <label className="text-[10px] text-text-secondary block mb-1">
-                      Animation Style
+                      {t('inspector.sections.animationStyle')}
                     </label>
                     <Select
                       value={defaultAnimationStyle}
@@ -1042,7 +1048,7 @@ export const InspectorPanel: React.FC = () => {
 
                   <div>
                     <label className="text-[10px] text-text-secondary block mb-1">
-                      Target Language
+                      {t('inspector.sections.targetLanguage')}
                     </label>
                     <Select
                       value={targetLanguage}
@@ -1050,28 +1056,28 @@ export const InspectorPanel: React.FC = () => {
                       disabled={isTranscribing}
                     >
                       <SelectTrigger className="w-full bg-background-secondary border-border text-text-primary text-[11px]">
-                        <SelectValue placeholder="Original (no translation)" />
+                        <SelectValue placeholder={t('inspector.languages.none')} />
                       </SelectTrigger>
                       <SelectContent className="bg-background-secondary border-border">
-                        <SelectItem value="none">Original (no translation)</SelectItem>
+                        <SelectItem value="none">{t('inspector.languages.none')}</SelectItem>
                         <SelectGroup>
-                          <SelectLabel className="text-[10px]">Translate to</SelectLabel>
-                          <SelectItem value="en">English</SelectItem>
-                          <SelectItem value="es">Spanish</SelectItem>
-                          <SelectItem value="fr">French</SelectItem>
-                          <SelectItem value="de">German</SelectItem>
-                          <SelectItem value="pt">Portuguese</SelectItem>
-                          <SelectItem value="it">Italian</SelectItem>
-                          <SelectItem value="nl">Dutch</SelectItem>
-                          <SelectItem value="ru">Russian</SelectItem>
-                          <SelectItem value="zh">Chinese</SelectItem>
-                          <SelectItem value="ja">Japanese</SelectItem>
-                          <SelectItem value="ko">Korean</SelectItem>
-                          <SelectItem value="ar">Arabic</SelectItem>
-                          <SelectItem value="hi">Hindi</SelectItem>
-                          <SelectItem value="tr">Turkish</SelectItem>
-                          <SelectItem value="pl">Polish</SelectItem>
-                          <SelectItem value="sv">Swedish</SelectItem>
+                          <SelectLabel className="text-[10px]">{t('inspector.languages.translateTo')}</SelectLabel>
+                          <SelectItem value="en">{t('inspector.languages.en')}</SelectItem>
+                          <SelectItem value="es">{t('inspector.languages.es')}</SelectItem>
+                          <SelectItem value="fr">{t('inspector.languages.fr')}</SelectItem>
+                          <SelectItem value="de">{t('inspector.languages.de')}</SelectItem>
+                          <SelectItem value="pt">{t('inspector.languages.pt')}</SelectItem>
+                          <SelectItem value="it">{t('inspector.languages.it')}</SelectItem>
+                          <SelectItem value="nl">{t('inspector.languages.nl')}</SelectItem>
+                          <SelectItem value="ru">{t('inspector.languages.ru')}</SelectItem>
+                          <SelectItem value="zh">{t('inspector.languages.zh')}</SelectItem>
+                          <SelectItem value="ja">{t('inspector.languages.ja')}</SelectItem>
+                          <SelectItem value="ko">{t('inspector.languages.ko')}</SelectItem>
+                          <SelectItem value="ar">{t('inspector.languages.ar')}</SelectItem>
+                          <SelectItem value="hi">{t('inspector.languages.hi')}</SelectItem>
+                          <SelectItem value="tr">{t('inspector.languages.tr')}</SelectItem>
+                          <SelectItem value="pl">{t('inspector.languages.pl')}</SelectItem>
+                          <SelectItem value="sv">{t('inspector.languages.sv')}</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -1108,7 +1114,7 @@ export const InspectorPanel: React.FC = () => {
                       className="w-full py-2 bg-primary hover:bg-primary/80 text-black rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-2"
                     >
                       <Captions size={14} />
-                      Generate Captions
+                      {t('inspector.sections.generateCaptions')}
                     </button>
                   )}
                 </div>
@@ -1116,50 +1122,50 @@ export const InspectorPanel: React.FC = () => {
             )}
 
             {clipType === "video" && (
-              <Section title="Background Removal" sectionId="background-removal" defaultOpen={false}>
+              <Section title={t('inspector.sections.backgroundRemoval')} sectionId="background-removal" defaultOpen={false}>
                 <BackgroundRemovalSection clipId={clipId} />
               </Section>
             )}
 
             {clipType === "video" && (
-              <Section title="Auto Reframe" sectionId="auto-reframe" defaultOpen={false}>
+              <Section title={t('inspector.sections.autoReframe')} sectionId="auto-reframe" defaultOpen={false}>
                 <AutoReframeSection clipId={clipId} />
               </Section>
             )}
 
             {showAudioEffects && (
-              <Section title="Auto Cut Silence" sectionId="auto-cut-silence" defaultOpen={false}>
+              <Section title={t('inspector.sections.autoCutSilence')} sectionId="auto-cut-silence" defaultOpen={false}>
                 <AutoCutSilenceSection clipId={clipId} />
               </Section>
             )}
 
             {/* Beat Sync - Sync other clips to this audio's beats */}
             {clipType === "audio" && (
-              <Section title="Beat Sync" sectionId="beat-sync" defaultOpen={false}>
+              <Section title={t('inspector.sections.beatSync')} sectionId="beat-sync" defaultOpen={false}>
                 <AudioTextSyncPanel clipId={clipId} />
               </Section>
             )}
 
             {/* Auto-Edit - Cut video clips to audio beats */}
             {showAudioEffects && (
-              <Section title="Beat-Synced Auto-Edit" sectionId="auto-edit" defaultOpen={false}>
+              <Section title={t('inspector.sections.beatSyncedAutoEdit')} sectionId="auto-edit" defaultOpen={false}>
                 <AutoEditPanel onClose={() => {}} />
               </Section>
             )}
 
             {/* AI Highlight Extractor */}
             {showAudioEffects && (
-              <Section title="AI Highlights" sectionId="ai-highlights" defaultOpen={false}>
+              <Section title={t('inspector.sections.aiHighlights')} sectionId="ai-highlights" defaultOpen={false}>
                 <HighlightExtractorPanel clipId={clipId} />
               </Section>
             )}
 
             {/* Transform */}
             {showTransformControls && (
-              <Section title="Transform" sectionId="transform">
+              <Section title={t('inspector.sections.transform')} sectionId="transform">
                 <div className="space-y-3">
                   <LabeledSlider
-                    label="Position X"
+                    label={t('inspector.transform.positionX')}
                     value={transform.position.x}
                     onChange={(x) =>
                       handleTransformChange({
@@ -1172,7 +1178,7 @@ export const InspectorPanel: React.FC = () => {
                     unit="px"
                   />
                   <LabeledSlider
-                    label="Position Y"
+                    label={t('inspector.transform.positionY')}
                     value={transform.position.y}
                     onChange={(y) =>
                       handleTransformChange({
@@ -1185,7 +1191,7 @@ export const InspectorPanel: React.FC = () => {
                     unit="px"
                   />
                   <LabeledSlider
-                    label="Scale X"
+                    label={t('inspector.transform.scaleX')}
                     value={transform.scale.x * 100}
                     onChange={(x) =>
                       handleTransformChange({
@@ -1198,7 +1204,7 @@ export const InspectorPanel: React.FC = () => {
                     unit="%"
                   />
                   <LabeledSlider
-                    label="Scale Y"
+                    label={t('inspector.transform.scaleY')}
                     value={transform.scale.y * 100}
                     onChange={(y) =>
                       handleTransformChange({
@@ -1211,7 +1217,7 @@ export const InspectorPanel: React.FC = () => {
                     unit="%"
                   />
                   <LabeledSlider
-                    label="Rotation"
+                    label={t('inspector.transform.rotation')}
                     value={transform.rotation}
                     onChange={(rotation) => handleTransformChange({ rotation })}
                     min={-180}
@@ -1220,7 +1226,7 @@ export const InspectorPanel: React.FC = () => {
                     unit="°"
                   />
                   <LabeledSlider
-                    label="Opacity"
+                    label={t('inspector.transform.opacity')}
                     value={transform.opacity * 100}
                     onChange={(opacity) =>
                       handleTransformChange({ opacity: opacity / 100 })
@@ -1231,7 +1237,7 @@ export const InspectorPanel: React.FC = () => {
                     unit="%"
                   />
                   <LabeledSlider
-                    label="Border Radius"
+                    label={t('inspector.transform.borderRadius')}
                     value={transform.borderRadius || 0}
                     onChange={(borderRadius) =>
                       handleTransformChange({ borderRadius })
@@ -1244,7 +1250,7 @@ export const InspectorPanel: React.FC = () => {
                   {clipType === "image" && (
                     <div className="space-y-1 pt-2 border-t border-border">
                       <span className="text-[10px] text-text-secondary">
-                        Fit Mode
+                        {t('inspector.transform.fitMode')}
                       </span>
                       <div className="grid grid-cols-4 gap-1">
                         {(
@@ -1262,9 +1268,9 @@ export const InspectorPanel: React.FC = () => {
                             }`}
                           >
                             {mode === "contain"
-                              ? "Fit"
+                              ? t('inspector.transform.fit')
                               : mode === "cover"
-                                ? "Fill"
+                                ? t('inspector.transform.fill')
                                 : mode}
                           </button>
                         ))}
@@ -1282,7 +1288,7 @@ export const InspectorPanel: React.FC = () => {
               !selectedClip.mediaId.startsWith("shape-") &&
               !selectedClip.mediaId.startsWith("svg-") &&
               !selectedClip.mediaId.startsWith("sticker-") && (
-                <Section title="Crop" sectionId="crop" defaultOpen={false}>
+                <Section title={t('inspector.sections.crop')} sectionId="crop" defaultOpen={false}>
                   <CropSection clip={selectedClip as Clip} />
                 </Section>
               )}
@@ -1295,7 +1301,7 @@ export const InspectorPanel: React.FC = () => {
               !selectedClip.mediaId.startsWith("svg-") &&
               !selectedClip.mediaId.startsWith("sticker-") && (
                 <Section
-                  title="Speed & Direction"
+                  title={t('inspector.sections.speedDirection')}
                   sectionId="speed"
                   defaultOpen={true}
                 >
@@ -1311,7 +1317,7 @@ export const InspectorPanel: React.FC = () => {
               !selectedClip.mediaId.startsWith("svg-") &&
               !selectedClip.mediaId.startsWith("sticker-") && (
                 <Section
-                  title="Stabilization"
+                  title={t('inspector.sections.stabilization')}
                   sectionId="stabilization"
                   defaultOpen={false}
                 >
@@ -1327,7 +1333,7 @@ export const InspectorPanel: React.FC = () => {
               !selectedClip.mediaId.startsWith("svg-") &&
               !selectedClip.mediaId.startsWith("sticker-") && (
                 <Section
-                  title="Speed Curves"
+                  title={t('inspector.sections.speedCurves')}
                   sectionId="speed-curves"
                   defaultOpen={false}
                 >
@@ -1343,7 +1349,7 @@ export const InspectorPanel: React.FC = () => {
               clipType === "svg" ||
               clipType === "sticker") && (
               <Section
-                title="Alignment"
+                title={t('inspector.sections.alignment')}
                 sectionId="alignment"
                 defaultOpen={false}
               >
@@ -1359,7 +1365,7 @@ export const InspectorPanel: React.FC = () => {
               clipType === "svg" ||
               clipType === "sticker") && (
               <Section
-                title="Blending"
+                title={t('inspector.sections.blending')}
                 sectionId="blending"
                 defaultOpen={false}
               >
@@ -1375,7 +1381,7 @@ export const InspectorPanel: React.FC = () => {
               clipType === "svg" ||
               clipType === "sticker") && (
               <Section
-                title="3D Transforms"
+                title={t('inspector.sections.3dTransforms')}
                 sectionId="transform-3d"
                 defaultOpen={false}
               >
@@ -1384,7 +1390,7 @@ export const InspectorPanel: React.FC = () => {
             )}
 
             {/* Keyframes - Using KeyframeEngine */}
-            <Section title="Keyframes" sectionId="keyframes">
+            <Section title={t('inspector.sections.keyframes')} sectionId="keyframes">
               <KeyframesSection clipId={clipId} />
             </Section>
 
@@ -1396,7 +1402,7 @@ export const InspectorPanel: React.FC = () => {
               clipType === "svg" ||
               clipType === "sticker") && (
               <Section
-                title="Transitions"
+                title={t('inspector.sections.transitions')}
                 sectionId="transitions"
                 defaultOpen={false}
               >
@@ -1411,7 +1417,7 @@ export const InspectorPanel: React.FC = () => {
               clipType === "svg" ||
               clipType === "sticker") && (
               <Section
-                title="Motion Presets"
+                title={t('inspector.sections.motionPresets')}
                 sectionId="motion-presets"
                 defaultOpen={false}
               >
@@ -1427,7 +1433,7 @@ export const InspectorPanel: React.FC = () => {
               clipType === "svg" ||
               clipType === "sticker") && (
               <Section
-                title="Motion Path"
+                title={t('inspector.sections.motionPath')}
                 sectionId="motion-path"
                 defaultOpen={false}
               >
@@ -1444,7 +1450,7 @@ export const InspectorPanel: React.FC = () => {
               clipType === "sticker") &&
               selectedClip && (
                 <Section
-                  title="Particle Effects"
+                  title={t('inspector.sections.particleEffects')}
                   sectionId="particle-effects"
                   defaultOpen={false}
                 >
@@ -1464,7 +1470,7 @@ export const InspectorPanel: React.FC = () => {
               clipType === "svg" ||
               clipType === "sticker") && (
               <Section
-                title="Emphasis Animation"
+                title={t('inspector.sections.emphasisAnimation')}
                 sectionId="emphasis-animation"
                 defaultOpen={false}
               >
@@ -1474,11 +1480,11 @@ export const InspectorPanel: React.FC = () => {
 
             {/* Chroma Key - Using ChromaKeyEngine - Only for video/image */}
             {showVideoControls && (
-              <Section title="Chroma Key (Green Screen)">
+              <Section title={t('inspector.sections.chromaKey')}>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-text-secondary">
-                      Enable
+                      {t('inspector.chromaKey.enable')}
                     </span>
                     <Switch
                       checked={chromaKeyEnabled}
@@ -1489,7 +1495,7 @@ export const InspectorPanel: React.FC = () => {
                     <>
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] text-text-secondary">
-                          Key Color
+                          {t('inspector.chromaKey.keyColor')}
                         </span>
                         <input
                           type="color"
@@ -1499,7 +1505,7 @@ export const InspectorPanel: React.FC = () => {
                         />
                       </div>
                       <LabeledSlider
-                        label="Tolerance"
+                        label={t('inspector.chromaKey.tolerance')}
                         value={tolerance}
                         onChange={handleToleranceChange}
                         unit="%"
@@ -1512,20 +1518,20 @@ export const InspectorPanel: React.FC = () => {
 
             {/* Motion Tracking - Using MotionTrackingEngine - Only for video/image */}
             {showVideoControls && (
-              <Section title="Motion Tracking" sectionId="motion-tracking">
+              <Section title={t('inspector.sections.motionTracking')} sectionId="motion-tracking">
                 <MotionTrackingSection clipId={clipId} />
               </Section>
             )}
 
             {showVideoEffects && (
-              <Section title="Video Effects" sectionId="video-effects">
+              <Section title={t('inspector.sections.videoEffects')} sectionId="video-effects">
                 <VideoEffectsSection clipId={clipId} />
               </Section>
             )}
 
             {showVideoEffects && (
               <Section
-                title="Green Screen"
+                title={t('inspector.sections.greenScreen')}
                 sectionId="green-screen"
                 defaultOpen={false}
               >
@@ -1536,7 +1542,7 @@ export const InspectorPanel: React.FC = () => {
             {/* Picture-in-Picture Section */}
             {showVideoControls && (
               <Section
-                title="Picture-in-Picture"
+                title={t('inspector.sections.pictureInPicture')}
                 sectionId="pip"
                 defaultOpen={false}
               >
@@ -1545,26 +1551,26 @@ export const InspectorPanel: React.FC = () => {
             )}
 
             {showVideoControls && (
-              <Section title="Masking" sectionId="masking" defaultOpen={false}>
+              <Section title={t('inspector.sections.masking')} sectionId="masking" defaultOpen={false}>
                 <MaskSection clipId={clipId} />
               </Section>
             )}
 
             {showVideoControls && (
-              <Section title="Nested Sequences" defaultOpen={false}>
+              <Section title={t('inspector.sections.nestedSequences')} defaultOpen={false}>
                 <NestedSequenceSection clipId={clipId} />
               </Section>
             )}
 
             {showVideoControls && (
-              <Section title="Adjustment Layers" defaultOpen={false}>
+              <Section title={t('inspector.sections.adjustmentLayers')} defaultOpen={false}>
                 <AdjustmentLayerSection clipId={clipId} />
               </Section>
             )}
 
             {showColorGrading && (
               <Section
-                title="Color Grading"
+                title={t('inspector.sections.colorGrading')}
                 sectionId="color-grading"
                 defaultOpen={false}
               >
@@ -1584,7 +1590,7 @@ export const InspectorPanel: React.FC = () => {
 
             {showAudioEffects && (
               <Section
-                title="Audio Effects"
+                title={t('inspector.sections.audioEffects')}
                 sectionId="audio-effects"
                 defaultOpen={false}
               >
@@ -1594,7 +1600,7 @@ export const InspectorPanel: React.FC = () => {
 
             {showAudioEffects && (
               <Section
-                title="Audio Ducking"
+                title={t('inspector.sections.audioDucking')}
                 sectionId="audio-ducking"
                 defaultOpen={false}
               >
@@ -1603,14 +1609,14 @@ export const InspectorPanel: React.FC = () => {
             )}
 
             {showTextSection && (
-              <Section title="Text Properties" sectionId="text-properties">
+              <Section title={t('inspector.sections.textProperties')} sectionId="text-properties">
                 <TextSection clipId={clipId} />
               </Section>
             )}
 
             {showTextSection && (
               <Section
-                title="Text Animation"
+                title={t('inspector.sections.textAnimation')}
                 sectionId="text-animation"
                 defaultOpen={false}
               >
@@ -1620,7 +1626,7 @@ export const InspectorPanel: React.FC = () => {
 
             {showTextSection && (
               <Section
-                title="Text Behind Subject"
+                title={t('inspector.sections.textBehindSubject')}
                 sectionId="text-behind-subject"
                 defaultOpen={false}
               >
@@ -1629,14 +1635,14 @@ export const InspectorPanel: React.FC = () => {
             )}
 
             {showShapeSection && (
-              <Section title="Shape Properties" sectionId="shape-properties">
+              <Section title={t('inspector.sections.shapeProperties')} sectionId="shape-properties">
                 <ShapeSection clipId={clipId} />
               </Section>
             )}
 
             {/* SVG Section */}
             {showSVGSection && (
-              <Section title="SVG Properties">
+              <Section title={t('inspector.sections.svgProperties')}>
                 <SVGSection clipId={clipId} />
               </Section>
             )}
@@ -1646,7 +1652,7 @@ export const InspectorPanel: React.FC = () => {
               <div className="border border-primary/30 bg-primary/5 rounded-xl p-4 relative overflow-hidden">
                 <div className="flex items-center gap-2 text-primary mb-3">
                   <Zap size={14} />
-                  <span className="text-xs font-bold">Quick Actions</span>
+                  <span className="text-xs font-bold">{t('inspector.sections.quickActions')}</span>
                 </div>
                 <div className="space-y-2">
                   {showVideoControls && (
@@ -1659,7 +1665,7 @@ export const InspectorPanel: React.FC = () => {
                           : "bg-background-tertiary hover:bg-primary hover:text-white border-border hover:border-primary"
                       }`}
                     >
-                      Remove Background
+                      {t('inspector.quickActions.removeBackground')}
                     </button>
                   )}
                   {showAudioEffects && (
@@ -1677,12 +1683,12 @@ export const InspectorPanel: React.FC = () => {
                       {isEnhancingAudio ? (
                         <>
                           <Loader2 size={12} className="animate-spin" />
-                          Cleaning up...
+                          {t('inspector.quickActions.cleaningUp')}
                         </>
                       ) : audioEnhanced ? (
-                        "✓ Noise Reduced"
+                        t('inspector.quickActions.noiseReduced')
                       ) : (
-                        "Quick Dialogue Cleanup"
+                        t('inspector.quickActions.quickDialogueCleanup')
                       )}
                     </button>
                   )}
@@ -1696,7 +1702,7 @@ export const InspectorPanel: React.FC = () => {
                           : "bg-background-tertiary hover:bg-primary hover:text-white border-border hover:border-primary"
                       }`}
                     >
-                      {isApplyingSelectedClipEffect ? "Applying..." : "Auto-Color"}
+                      {isApplyingSelectedClipEffect ? t('inspector.quickActions.applying') : t('inspector.quickActions.autoColor')}
                     </button>
                   )}
                 </div>
@@ -1709,7 +1715,7 @@ export const InspectorPanel: React.FC = () => {
             <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/30">
               <div className="flex items-center gap-2 mb-1">
                 <Captions size={14} className="text-primary" />
-                <span className="text-xs font-bold text-primary">Subtitle</span>
+                <span className="text-xs font-bold text-primary">{t('inspector.subtitle.title')}</span>
               </div>
               <p className="text-[10px] text-text-muted">
                 {selectedSubtitle.startTime.toFixed(2)}s -{" "}
@@ -1718,7 +1724,7 @@ export const InspectorPanel: React.FC = () => {
             </div>
 
             {/* Subtitle Text Editor */}
-            <Section title="Text Content">
+            <Section title={t('inspector.sections.textContent')}>
               <div className="space-y-3">
                 <textarea
                   value={selectedSubtitle.text}
@@ -1728,17 +1734,17 @@ export const InspectorPanel: React.FC = () => {
                     })
                   }
                   className="w-full h-24 px-3 py-2 bg-background-tertiary border border-border rounded-lg text-xs text-text-primary resize-none focus:outline-none focus:border-primary"
-                  placeholder="Enter subtitle text..."
+                  placeholder={t('inspector.subtitle.placeholder')}
                 />
               </div>
             </Section>
 
             {/* Subtitle Timing */}
-            <Section title="Timing">
+            <Section title={t('inspector.sections.timing')}>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-text-secondary">
-                    Start Time
+                    {t('inspector.subtitle.startTime')}
                   </span>
                   <Input
                     type="number"
@@ -1754,7 +1760,7 @@ export const InspectorPanel: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-text-secondary">
-                    End Time
+                    {t('inspector.subtitle.endTime')}
                   </span>
                   <Input
                     type="number"
@@ -1772,7 +1778,7 @@ export const InspectorPanel: React.FC = () => {
             </Section>
 
             {/* Subtitle Position */}
-            <Section title="Position">
+            <Section title={t('inspector.sections.position')}>
               <div className="grid grid-cols-3 gap-2">
                 {(["top", "center", "bottom"] as const).map((pos) => (
                   <button
@@ -1798,10 +1804,10 @@ export const InspectorPanel: React.FC = () => {
             </Section>
 
             {/* Subtitle Animation Style */}
-            <Section title="Animation">
+            <Section title={t('inspector.sections.animation')}>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-text-secondary">Style</span>
+                  <span className="text-[10px] text-text-secondary">{t('inspector.subtitle.style')}</span>
                   <Select
                     value={selectedSubtitle.animationStyle || "none"}
                     onValueChange={(v) =>
@@ -1824,25 +1830,24 @@ export const InspectorPanel: React.FC = () => {
                 </div>
                 <p className="text-[9px] text-text-muted">
                   {selectedSubtitle.animationStyle === "karaoke" &&
-                    "Words fill with color as they're spoken"}
+                    t('inspector.subtitle.animations.karaoke')}
                   {selectedSubtitle.animationStyle === "word-highlight" &&
-                    "Current word is highlighted and scaled"}
+                    t('inspector.subtitle.animations.wordHighlight')}
                   {selectedSubtitle.animationStyle === "word-by-word" &&
-                    "Shows one word at a time"}
+                    t('inspector.subtitle.animations.wordByWord')}
                   {selectedSubtitle.animationStyle === "bounce" &&
-                    "Words bounce in as they appear"}
+                    t('inspector.subtitle.animations.bounce')}
                   {selectedSubtitle.animationStyle === "typewriter" &&
-                    "Words appear progressively like typing"}
+                    t('inspector.subtitle.animations.typewriter')}
                   {(!selectedSubtitle.animationStyle ||
                     selectedSubtitle.animationStyle === "none") &&
-                    "Static text, no animation"}
+                    t('inspector.subtitle.animations.none')}
                 </p>
                 {selectedSubtitle.animationStyle &&
                   selectedSubtitle.animationStyle !== "none" &&
                   !selectedSubtitle.words?.length && (
                     <p className="text-[9px] text-amber-400 bg-amber-400/10 p-2 rounded">
-                      ⚠️ No word-level timing data. Re-generate captions to
-                      enable animation.
+                      {t('inspector.subtitle.noWordData')}
                     </p>
                   )}
                 {selectedSubtitle.animationStyle &&
@@ -1852,7 +1857,7 @@ export const InspectorPanel: React.FC = () => {
                     <div className="pt-2 border-t border-border space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] text-text-secondary">
-                          Highlight Color
+                          {t('inspector.subtitle.highlightColor')}
                         </span>
                         <div className="flex items-center gap-2">
                           <input
@@ -1912,11 +1917,11 @@ export const InspectorPanel: React.FC = () => {
             </Section>
 
             {/* Subtitle Font Settings */}
-            <Section title="Font">
+            <Section title={t('inspector.sections.font')}>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-text-secondary">
-                    Font Family
+                    {t('inspector.subtitle.fontFamily')}
                   </span>
                   <Select
                     value={selectedSubtitle.style?.fontFamily || "Inter"}
@@ -1934,7 +1939,7 @@ export const InspectorPanel: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent className="bg-background-secondary border-border max-h-60">
                       <SelectGroup>
-                        <SelectLabel className="text-text-muted text-[10px] font-medium">Popular</SelectLabel>
+                        <SelectLabel className="text-text-muted text-[10px] font-medium">{t('inspector.subtitle.fontCategories.popular')}</SelectLabel>
                         {["Inter", "Poppins", "Montserrat", "Roboto", "Open Sans", "Lato", "DM Sans"].map((font) => (
                           <SelectItem key={font} value={font} style={{ fontFamily: font }}>
                             {font}
@@ -1942,7 +1947,7 @@ export const InspectorPanel: React.FC = () => {
                         ))}
                       </SelectGroup>
                       <SelectGroup>
-                        <SelectLabel className="text-text-muted text-[10px] font-medium">Display</SelectLabel>
+                        <SelectLabel className="text-text-muted text-[10px] font-medium">{t('inspector.subtitle.fontCategories.display')}</SelectLabel>
                         {["Bebas Neue", "Anton", "Oswald", "Teko", "Staatliches", "Alfa Slab One"].map((font) => (
                           <SelectItem key={font} value={font} style={{ fontFamily: font }}>
                             {font}
@@ -1950,7 +1955,7 @@ export const InspectorPanel: React.FC = () => {
                         ))}
                       </SelectGroup>
                       <SelectGroup>
-                        <SelectLabel className="text-text-muted text-[10px] font-medium">Elegant</SelectLabel>
+                        <SelectLabel className="text-text-muted text-[10px] font-medium">{t('inspector.subtitle.fontCategories.elegant')}</SelectLabel>
                         {["Playfair Display", "Cinzel", "Lora", "Merriweather", "DM Serif Display"].map((font) => (
                           <SelectItem key={font} value={font} style={{ fontFamily: font }}>
                             {font}
@@ -1958,7 +1963,7 @@ export const InspectorPanel: React.FC = () => {
                         ))}
                       </SelectGroup>
                       <SelectGroup>
-                        <SelectLabel className="text-text-muted text-[10px] font-medium">Handwritten</SelectLabel>
+                        <SelectLabel className="text-text-muted text-[10px] font-medium">{t('inspector.subtitle.fontCategories.handwritten')}</SelectLabel>
                         {["Pacifico", "Lobster", "Dancing Script", "Caveat", "Permanent Marker"].map((font) => (
                           <SelectItem key={font} value={font} style={{ fontFamily: font }}>
                             {font}
@@ -1970,7 +1975,7 @@ export const InspectorPanel: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-text-secondary">
-                    Font Size
+                    {t('inspector.subtitle.fontSize')}
                   </span>
                   <Input
                     type="number"
@@ -1992,11 +1997,11 @@ export const InspectorPanel: React.FC = () => {
             </Section>
 
             {/* Subtitle Colors */}
-            <Section title="Colors">
+            <Section title={t('inspector.sections.colors')}>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-text-secondary">
-                    Text Color
+                    {t('inspector.subtitle.textColor')}
                   </span>
                   <div className="flex items-center gap-2">
                     <input
@@ -2019,7 +2024,7 @@ export const InspectorPanel: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-text-secondary">
-                    Background
+                    {t('inspector.subtitle.background')}
                   </span>
                   <div className="flex items-center gap-2">
                     <input
@@ -2072,7 +2077,7 @@ export const InspectorPanel: React.FC = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-background-secondary border-border">
-                        <SelectItem value="0">None</SelectItem>
+                        <SelectItem value="0">{t('inspector.subtitle.bgNone')}</SelectItem>
                         <SelectItem value="0.5">50%</SelectItem>
                         <SelectItem value="0.7">70%</SelectItem>
                         <SelectItem value="1">100%</SelectItem>
@@ -2092,7 +2097,7 @@ export const InspectorPanel: React.FC = () => {
                 }}
                 className="w-full py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-lg text-[10px] transition-all"
               >
-                Delete Subtitle
+                {t('inspector.subtitle.delete')}
               </button>
             </div>
           </>

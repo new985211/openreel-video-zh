@@ -1,13 +1,24 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Progress, ScrollArea } from "@openreel/ui";
 import {
   useProcessingStore,
-  PROCESSING_TYPE_LABELS,
   type ProcessingTask,
 } from "../../services/processing-manager";
 
+const getTypeLabelKey = (type: string): string => {
+  switch (type) {
+    case "background-removal": return "processing.typeLabels.backgroundRemoval";
+    case "auto-reframe": return "processing.typeLabels.autoReframe";
+    case "color-grading": return "processing.typeLabels.colorGrading";
+    case "effects": return "processing.typeLabels.videoEffects";
+    default: return type;
+  }
+};
+
 const TaskItem: React.FC<{ task: ProcessingTask }> = ({ task }) => {
+  const { t } = useTranslation();
   const getIcon = () => {
     switch (task.status) {
       case "queued":
@@ -40,10 +51,10 @@ const TaskItem: React.FC<{ task: ProcessingTask }> = ({ task }) => {
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-text-primary truncate">
-            {PROCESSING_TYPE_LABELS[task.type]}
+            {t(getTypeLabelKey(task.type))}
           </span>
           <span className={`text-[10px] ${getStatusColor()}`}>
-            {task.status === "processing" ? `${task.progress}%` : task.status}
+            {task.status === "processing" ? `${task.progress}%` : t(`common.${task.status}`)}
           </span>
         </div>
         {task.status === "processing" && (
@@ -65,6 +76,7 @@ const TaskItem: React.FC<{ task: ProcessingTask }> = ({ task }) => {
 };
 
 export const ProcessingOverlay: React.FC = () => {
+  const { t } = useTranslation();
   const { tasks, isProcessing, getOverallProgress } = useProcessingStore();
   const taskList = Array.from(tasks.values());
   const activeTasks = taskList.filter(
@@ -86,11 +98,10 @@ export const ProcessingOverlay: React.FC = () => {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-text-primary">
-              Processing Effects
+              {t('processing.title')}
             </h3>
             <p className="text-xs text-text-muted">
-              {activeTasks.length} task{activeTasks.length !== 1 ? "s" : ""} in
-              progress
+              {t('processing.tasksInProgress', { count: activeTasks.length })}
             </p>
           </div>
         </div>
@@ -98,7 +109,7 @@ export const ProcessingOverlay: React.FC = () => {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[10px] text-text-secondary">
-              Overall Progress
+              {t('processing.overallProgress')}
             </span>
             <span className="text-[10px] text-text-muted font-mono">
               {progress}%
@@ -116,7 +127,7 @@ export const ProcessingOverlay: React.FC = () => {
         </ScrollArea>
 
         <p className="text-[10px] text-text-muted text-center mt-4">
-          Please wait while effects are being applied...
+          {t('processing.pleaseWait')}
         </p>
       </div>
     </div>

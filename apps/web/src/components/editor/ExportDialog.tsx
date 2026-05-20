@@ -280,7 +280,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           <div className="flex items-center gap-3">
             <Download size={20} className="text-primary" />
             <DialogTitle className="text-lg font-bold text-text-primary">
-              Export Video
+              {t('export.title')}
             </DialogTitle>
           </div>
         </DialogHeader>
@@ -296,14 +296,14 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
               className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-text-secondary hover:text-text-primary"
             >
               <Star size={16} />
-              Presets
+              {t('export.presets')}
             </TabsTrigger>
             <TabsTrigger
               value="custom"
               className="flex-1 flex items-center justify-center gap-2 p-3 text-sm font-medium rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-text-secondary hover:text-text-primary"
             >
               <Settings size={16} />
-              Custom
+              {t('export.custom')}
             </TabsTrigger>
           </TabsList>
 
@@ -319,7 +319,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     <Zap size={14} />
-                    <span className="font-medium">For Your Video</span>
+                    <span className="font-medium">{t('export.forYourVideo')}</span>
                   </div>
                   <span className="text-[10px] text-text-muted mt-0.5 ml-5">
                     {t(getAspectRatioLabel(aspectType))}
@@ -379,7 +379,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                           </span>
                           <span>
                             {(preset.settings as VideoExportSettings).frameRate}
-                            fps
+                            {t('common.fps')}
                           </span>
                           <span>{preset.aspectRatio}</span>
                         </div>
@@ -387,7 +387,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                       {preset.maxDuration && (
                         <div className="flex items-center gap-1 mt-1 text-[10px] text-yellow-500">
                           <Clock size={10} />
-                          Max {preset.maxDuration}s
+                          {t('export.maxDurationPrefix')}{preset.maxDuration}{t('export.secondsSuffix')}
                         </div>
                       )}
                     </button>
@@ -400,7 +400,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-text-secondary mb-2">
-                    Format
+                    {t('export.format')}
                   </label>
                   <Select
                     value={customSettings.format}
@@ -424,7 +424,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
 
                 <div>
                   <label className="block text-xs font-medium text-text-secondary mb-2">
-                    Codec
+                    {t('export.codec')}
                   </label>
                   <Select
                     value={customSettings.codec}
@@ -450,7 +450,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
 
                 <div>
                   <label className="block text-xs font-medium text-text-secondary mb-2">
-                    Resolution
+                    {t('export.resolution')}
                   </label>
                   <Select
                     value={`${customSettings.width}x${customSettings.height}`}
@@ -467,20 +467,20 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-background-secondary border-border">
-                      <SelectItem value="3840x2160">4K (3840x2160)</SelectItem>
-                      <SelectItem value="2560x1440">2K (2560x1440)</SelectItem>
-                      <SelectItem value="1920x1080">1080p (1920x1080)</SelectItem>
-                      <SelectItem value="1280x720">720p (1280x720)</SelectItem>
-                      <SelectItem value="854x480">480p (854x480)</SelectItem>
-                      <SelectItem value="1080x1920">Vertical 1080p</SelectItem>
-                      <SelectItem value="1080x1080">Square 1080</SelectItem>
+                      <SelectItem value="3840x2160">{t('export.resolutions.4k')}</SelectItem>
+                      <SelectItem value="2560x1440">{t('export.resolutions.2k')}</SelectItem>
+                      <SelectItem value="1920x1080">{t('export.resolutions.1080p')}</SelectItem>
+                      <SelectItem value="1280x720">{t('export.resolutions.720p')}</SelectItem>
+                      <SelectItem value="854x480">{t('export.resolutions.480p')}</SelectItem>
+                      <SelectItem value="1080x1920">{t('export.resolutions.vertical1080p')}</SelectItem>
+                      <SelectItem value="1080x1080">{t('export.resolutions.square1080')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-text-secondary mb-2">
-                    Frame Rate
+                    {t('export.frameRate')}
                   </label>
                   <Select
                     value={String(customSettings.frameRate)}
@@ -495,18 +495,18 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-background-secondary border-border">
-                      <SelectItem value="24">24 fps</SelectItem>
-                      <SelectItem value="25">25 fps</SelectItem>
-                      <SelectItem value="30">30 fps</SelectItem>
-                      <SelectItem value="50">50 fps</SelectItem>
-                      <SelectItem value="60">60 fps</SelectItem>
+                      <SelectItem value="24">{t('export.frameRates.24fps')}</SelectItem>
+                      <SelectItem value="25">{t('export.frameRates.25fps')}</SelectItem>
+                      <SelectItem value="30">{t('export.frameRates.30fps')}</SelectItem>
+                      <SelectItem value="50">{t('export.frameRates.50fps')}</SelectItem>
+                      <SelectItem value="60">{t('export.frameRates.60fps')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
                   <Label className="block text-xs font-medium text-text-secondary mb-2">
-                    Bitrate (kbps)
+                    {t('export.bitrate')}
                   </Label>
                   <Input
                     type="number"
@@ -526,7 +526,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
 
                 <div>
                   <Label className="block text-xs font-medium text-text-secondary mb-2">
-                    Quality
+                    {t('export.quality')}
                   </Label>
                   <Slider
                     value={[customSettings.quality]}
@@ -542,15 +542,15 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                     className="w-full"
                   />
                   <div className="flex justify-between text-[10px] text-text-muted mt-1">
-                    <span>Smaller</span>
+                    <span>{t('export.smaller')}</span>
                     <span>{customSettings.quality}%</span>
-                    <span>Better</span>
+                    <span>{t('export.better')}</span>
                   </div>
                 </div>
 
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-text-secondary mb-2">
-                    Audio Settings
+                    {t('export.audioSettings')}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     <Select
@@ -598,9 +598,9 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-background-secondary border-border">
-                        <SelectItem value="44100">44.1 kHz</SelectItem>
-                        <SelectItem value="48000">48 kHz</SelectItem>
-                        <SelectItem value="96000">96 kHz</SelectItem>
+                        <SelectItem value="44100">{t('export.sampleRates.44k')}</SelectItem>
+                        <SelectItem value="48000">{t('export.sampleRates.48k')}</SelectItem>
+                        <SelectItem value="96000">{t('export.sampleRates.96k')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <Select
@@ -619,10 +619,10 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-background-secondary border-border">
-                        <SelectItem value="128">128 kbps</SelectItem>
-                        <SelectItem value="192">192 kbps</SelectItem>
-                        <SelectItem value="256">256 kbps</SelectItem>
-                        <SelectItem value="320">320 kbps</SelectItem>
+                        <SelectItem value="128">{t('export.audioBitrates.128k')}</SelectItem>
+                        <SelectItem value="192">{t('export.audioBitrates.192k')}</SelectItem>
+                        <SelectItem value="256">{t('export.audioBitrates.256k')}</SelectItem>
+                        <SelectItem value="320">{t('export.audioBitrates.320k')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -633,7 +633,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                     <div className="flex items-center gap-2">
                       <Zap size={14} className="text-primary" />
                       <Label htmlFor="upscaling-switch" className="text-xs font-medium text-text-secondary">
-                        Enhance Quality (Upscaling)
+                        {t('export.enhanceQuality')}
                       </Label>
                     </div>
                     <Switch
@@ -655,7 +655,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                     <div className="space-y-3 pl-6">
                       <div>
                         <label className="block text-[10px] text-text-muted mb-1.5">
-                          Quality Mode
+                          {t('export.qualityMode')}
                         </label>
                         <div className="flex gap-2">
                           {(["fast", "balanced", "quality"] as const).map(
@@ -678,7 +678,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                                     : "border-border text-text-secondary hover:border-primary/50"
                                 }`}
                               >
-                                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                                {t('export.upscaleModes.' + mode)}
                               </button>
                             ),
                           )}
@@ -687,7 +687,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
 
                       <div>
                         <Label className="block text-[10px] text-text-muted mb-1.5">
-                          Sharpening
+                          {t('export.sharpening')}
                         </Label>
                         <Slider
                           value={[Math.round((customSettings.upscaling?.sharpening ?? 0.3) * 100)]}
@@ -706,7 +706,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                           className="w-full"
                         />
                         <div className="flex justify-between text-[10px] text-text-muted mt-1">
-                          <span>None</span>
+                          <span>{t('common.none')}</span>
                           <span>
                             {Math.round(
                               (customSettings.upscaling?.sharpening ?? 0.3) *
@@ -714,14 +714,12 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                             )}
                             %
                           </span>
-                          <span>Max</span>
+                          <span>{t('common.max')}</span>
                         </div>
                       </div>
 
                       <p className="text-[10px] text-text-muted">
-                        Enhance quality when exporting to higher resolutions
-                        than source. Uses edge-directed interpolation for
-                        sharper details.
+                        {t('export.upscalingHelp')}
                       </p>
                     </div>
                   )}
@@ -750,7 +748,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                     ) : (
                       <Gauge size={12} className="text-yellow-500" />
                     )}
-                    <span className="text-text-secondary">Est. time:</span>
+                    <span className="text-text-secondary">{t('export.estTimeLabel')}</span>
                     <span className="font-medium text-text-primary">
                       {timeEstimate.formatted}
                     </span>
@@ -762,7 +760,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                       className="flex items-center gap-1 px-2 py-1 text-[10px] text-primary bg-primary/10 rounded hover:bg-primary/20 transition-colors"
                     >
                       <Zap size={10} />
-                      Get accurate estimate
+                      {t('export.getAccurateEstimate')}
                     </button>
                   )}
 
@@ -774,7 +772,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                           style={{ width: `${benchmarkProgress.progress * 100}%` }}
                         />
                       </div>
-                      <span>Testing...</span>
+                      <span>{t('export.testing')}</span>
                     </div>
                   )}
                 </div>
@@ -784,24 +782,24 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
             {showDeviceInfo && (
               <div className="mt-3 pt-3 border-t border-border/50 grid grid-cols-3 gap-4 text-[10px]">
                 <div>
-                  <span className="text-text-muted">CPU</span>
+                  <span className="text-text-muted">{t('export.cpu')}</span>
                   <p className="text-text-primary font-medium">
                     {deviceProfile.cpu.cores} cores
                   </p>
                 </div>
                 <div>
-                  <span className="text-text-muted">GPU</span>
+                  <span className="text-text-muted">{t('export.gpu')}</span>
                   <p className="text-text-primary font-medium truncate" title={deviceProfile.gpu.renderer}>
                     {deviceProfile.gpu.renderer !== "Unknown"
                       ? deviceProfile.gpu.renderer.replace(/ANGLE \(|, .*\)/g, "").replace(/Direct3D11.*$/g, "").trim()
-                      : "Unknown"}
+                      : t('export.unknown')}
                   </p>
                   <p className="text-[9px] text-text-muted">
-                    {deviceProfile.gpu.hasHardwareEncoding ? "HW Encode" : "Software only"}
+                    {deviceProfile.gpu.hasHardwareEncoding ? t('export.hwEncode') : t('export.softwareOnly')}
                   </p>
                 </div>
                 <div>
-                  <span className="text-text-muted">Codecs</span>
+                  <span className="text-text-muted">{t('export.codecs')}</span>
                   <div className="flex gap-1 flex-wrap">
                     {codecRecommendations.slice(0, 3).map((rec) => (
                       <span
@@ -845,7 +843,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                 {timeEstimate && deviceProfile?.encoding[customSettings.codec as keyof typeof deviceProfile.encoding]?.hardware && (
                   <div className="flex items-center gap-1 text-green-500">
                     <Zap size={12} />
-                    Hardware accelerated
+                    {t('export.hardwareAccelerated')}
                   </div>
                 )}
               </>
@@ -853,14 +851,14 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={onClose}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleExport}
               disabled={activeTab === "presets" && !selectedPreset}
             >
               <Play size={16} />
-              Start Export
+              {t('export.startExport')}
             </Button>
           </div>
         </div>

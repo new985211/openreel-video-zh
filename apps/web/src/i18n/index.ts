@@ -12,4 +12,15 @@ i18next.use(initReactI18next).init({
   react: { useSuspense: false },
 });
 
+// Zustand persist middleware rehydrates asynchronously.
+// Sync i18n language once the persisted settings are loaded.
+if (useSettingsStore.persist?.onFinishHydration) {
+  useSettingsStore.persist.onFinishHydration(() => {
+    const storedLang = useSettingsStore.getState().language;
+    if (storedLang !== i18next.language) {
+      i18next.changeLanguage(storedLang);
+    }
+  });
+}
+
 export default i18next;

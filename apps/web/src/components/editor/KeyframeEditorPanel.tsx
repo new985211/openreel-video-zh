@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import type { Keyframe, Clip } from "@openreel/core";
 import { EASING_FUNCTIONS, type EasingName } from "@openreel/core";
 import { X, Copy, Clipboard, Trash2 } from "lucide-react";
@@ -23,27 +24,32 @@ const PROPERTY_COLORS: Record<string, string> = {
   default: "#64748b",
 };
 
-const EASING_PRESETS: { label: string; value: EasingName }[] = [
-  { label: "Linear", value: "linear" },
-  { label: "Ease In", value: "easeInQuad" },
-  { label: "Ease Out", value: "easeOutQuad" },
-  { label: "Ease In Out", value: "easeInOutQuad" },
-  { label: "Ease In Cubic", value: "easeInCubic" },
-  { label: "Ease Out Cubic", value: "easeOutCubic" },
-  { label: "Ease In Out Cubic", value: "easeInOutCubic" },
-  { label: "Ease In Quart", value: "easeInQuart" },
-  { label: "Ease Out Quart", value: "easeOutQuart" },
-  { label: "Ease In Out Quart", value: "easeInOutQuart" },
-  { label: "Ease In Back", value: "easeInBack" },
-  { label: "Ease Out Back", value: "easeOutBack" },
-  { label: "Ease In Out Back", value: "easeInOutBack" },
-  { label: "Ease In Elastic", value: "easeInElastic" },
-  { label: "Ease Out Elastic", value: "easeOutElastic" },
-  { label: "Ease In Out Elastic", value: "easeInOutElastic" },
-  { label: "Ease In Bounce", value: "easeInBounce" },
-  { label: "Ease Out Bounce", value: "easeOutBounce" },
-  { label: "Ease In Out Bounce", value: "easeInOutBounce" },
+const EASING_PRESETS: { labelKey: string; value: EasingName }[] = [
+  { labelKey: "keyframeEditor.easingPresets.linear", value: "linear" },
+  { labelKey: "keyframeEditor.easingPresets.easeIn", value: "easeInQuad" },
+  { labelKey: "keyframeEditor.easingPresets.easeOut", value: "easeOutQuad" },
+  { labelKey: "keyframeEditor.easingPresets.easeInOut", value: "easeInOutQuad" },
+  { labelKey: "keyframeEditor.easingPresets.easeInCubic", value: "easeInCubic" },
+  { labelKey: "keyframeEditor.easingPresets.easeOutCubic", value: "easeOutCubic" },
+  { labelKey: "keyframeEditor.easingPresets.easeInOutCubic", value: "easeInOutCubic" },
+  { labelKey: "keyframeEditor.easingPresets.easeInQuart", value: "easeInQuart" },
+  { labelKey: "keyframeEditor.easingPresets.easeOutQuart", value: "easeOutQuart" },
+  { labelKey: "keyframeEditor.easingPresets.easeInOutQuart", value: "easeInOutQuart" },
+  { labelKey: "keyframeEditor.easingPresets.easeInBack", value: "easeInBack" },
+  { labelKey: "keyframeEditor.easingPresets.easeOutBack", value: "easeOutBack" },
+  { labelKey: "keyframeEditor.easingPresets.easeInOutBack", value: "easeInOutBack" },
+  { labelKey: "keyframeEditor.easingPresets.easeInElastic", value: "easeInElastic" },
+  { labelKey: "keyframeEditor.easingPresets.easeOutElastic", value: "easeOutElastic" },
+  { labelKey: "keyframeEditor.easingPresets.easeInOutElastic", value: "easeInOutElastic" },
+  { labelKey: "keyframeEditor.easingPresets.easeInBounce", value: "easeInBounce" },
+  { labelKey: "keyframeEditor.easingPresets.easeOutBounce", value: "easeOutBounce" },
+  { labelKey: "keyframeEditor.easingPresets.easeInOutBounce", value: "easeInOutBounce" },
 ];
+
+const getEasingLabelKey = (easingValue: string): string => {
+  const preset = EASING_PRESETS.find((p) => p.value === easingValue);
+  return preset?.labelKey || easingValue;
+};
 
 interface KeyframeEditorPanelProps {
   clip: Clip | null;
@@ -77,6 +83,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
   onSelectKeyframe,
   copiedKeyframes,
 }) => {
+  const { t } = useTranslation();
   const [activeProperty, setActiveProperty] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -371,7 +378,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
   if (!clip) {
     return (
       <div className="h-full flex items-center justify-center text-text-muted">
-        <p className="text-sm">Select a clip with keyframes to edit</p>
+        <p className="text-sm">{t('keyframeEditor.selectClip')}</p>
       </div>
     );
   }
@@ -379,7 +386,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
   return (
     <div className="h-full flex flex-col bg-background-secondary border-l border-border">
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <h3 className="text-sm font-semibold text-text-primary">Keyframe Editor</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{t('keyframeEditor.title')}</h3>
         <button
           onClick={onClose}
           className="p-1 rounded hover:bg-background-elevated text-text-muted hover:text-text-primary transition-colors"
@@ -391,7 +398,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
       <div className="flex items-center gap-2 px-4 py-2 border-b border-border bg-background-tertiary">
         <Select value={activeProperty || ""} onValueChange={setActiveProperty}>
           <SelectTrigger className="w-[180px] h-8">
-            <SelectValue placeholder="Select property" />
+            <SelectValue placeholder={t('keyframeEditor.selectProperty')} />
           </SelectTrigger>
           <SelectContent>
             {propertyGroups.map((group) => (
@@ -418,7 +425,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
           className="h-8 px-2"
         >
           <Copy size={14} className="mr-1" />
-          Copy
+          {t('common.copy')}
         </Button>
         <Button
           variant="ghost"
@@ -428,7 +435,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
           className="h-8 px-2"
         >
           <Clipboard size={14} className="mr-1" />
-          Paste
+          {t('common.paste')}
         </Button>
         <Button
           variant="ghost"
@@ -438,7 +445,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
           className="h-8 px-2 text-red-400 hover:text-red-300"
         >
           <Trash2 size={14} className="mr-1" />
-          Delete
+          {t('common.delete')}
         </Button>
       </div>
 
@@ -458,19 +465,19 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
       <div className="px-4 py-3 border-t border-border bg-background-tertiary">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-text-muted">Easing:</span>
+            <span className="text-xs text-text-muted">{t('keyframeEditor.easing')}</span>
             <Select
               value={selectedKeyframeIds.length > 0 ? undefined : ""}
               onValueChange={handleEasingChange}
               disabled={selectedKeyframeIds.length === 0}
             >
               <SelectTrigger className="w-[160px] h-7 text-xs">
-                <SelectValue placeholder="Select easing" />
+                <SelectValue placeholder={t('keyframeEditor.selectEasing')} />
               </SelectTrigger>
               <SelectContent>
                 {EASING_PRESETS.map((preset) => (
                   <SelectItem key={preset.value} value={preset.value}>
-                    {preset.label}
+                    {t(preset.labelKey)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -480,7 +487,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
           <div className="flex-1" />
 
           <span className="text-xs text-text-muted">
-            {selectedKeyframeIds.length} keyframe{selectedKeyframeIds.length !== 1 ? "s" : ""} selected
+            {t('keyframeEditor.keyframesSelected', { count: selectedKeyframeIds.length })}
           </span>
         </div>
       </div>
@@ -491,9 +498,9 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-text-muted">
-                  <th className="text-left py-1 px-2">Time</th>
-                  <th className="text-left py-1 px-2">Value</th>
-                  <th className="text-left py-1 px-2">Easing</th>
+                  <th className="text-left py-1 px-2">{t('keyframeEditor.time')}</th>
+                  <th className="text-left py-1 px-2">{t('keyframeEditor.value')}</th>
+                  <th className="text-left py-1 px-2">{t('keyframeEditor.easing')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -507,7 +514,7 @@ export const KeyframeEditorPanel: React.FC<KeyframeEditorPanelProps> = ({
                   >
                     <td className="py-1 px-2">{kf.time.toFixed(3)}s</td>
                     <td className="py-1 px-2">{(kf.value as number).toFixed(3)}</td>
-                    <td className="py-1 px-2">{kf.easing}</td>
+                    <td className="py-1 px-2">{t(getEasingLabelKey(kf.easing))}</td>
                   </tr>
                 ))}
               </tbody>

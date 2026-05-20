@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import { formatTimecode } from "./utils";
+import { useTranslation } from "react-i18next";
 import {
   getBeatSyncBridge,
   type BeatSyncState,
@@ -31,6 +32,7 @@ export const TimeRuler: React.FC<TimeRulerProps> = ({
   onScrubEnd,
   snapPoints,
 }) => {
+  const { t } = useTranslation();
   const rulerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [beatState, setBeatState] = useState<BeatSyncState>(() =>
@@ -242,7 +244,7 @@ export const TimeRuler: React.FC<TimeRulerProps> = ({
       {beatState.beatAnalysis && (
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-orange-500/20 px-2 py-0.5 rounded text-[9px] text-orange-400 font-medium pointer-events-none">
           <span className="opacity-70">♪</span>
-          <span>{beatState.beatAnalysis.bpm} BPM</span>
+          <span>{beatState.beatAnalysis.bpm} {t('common.bpm')}</span>
         </div>
       )}
     </div>

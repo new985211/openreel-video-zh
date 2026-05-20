@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   getBeatSyncBridge,
   type BeatSyncState,
@@ -17,6 +18,7 @@ export const BeatMarkerOverlay: React.FC<BeatMarkerOverlayProps> = ({
   viewportWidth,
   totalHeight,
 }) => {
+  const { t } = useTranslation();
   const [beatState, setBeatState] = useState<BeatSyncState>(() =>
     getBeatSyncBridge().getState(),
   );
@@ -67,7 +69,7 @@ export const BeatMarkerOverlay: React.FC<BeatMarkerOverlayProps> = ({
             {isDownbeat && (
               <div
                 className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-orange-500"
-                title={`Beat ${marker.index + 1}`}
+                title={`${t('timeline.beatPrefix')}${marker.index + 1}`}
               />
             )}
           </div>

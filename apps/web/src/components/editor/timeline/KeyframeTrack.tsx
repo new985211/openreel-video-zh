@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import type { Keyframe, Clip } from "@openreel/core";
 import { KeyframeMarker } from "./KeyframeMarker";
+import { useTranslation } from "react-i18next";
 import { EasingCurve } from "./EasingCurve";
 
 const PROPERTY_COLORS: Record<string, string> = {
@@ -15,13 +16,13 @@ const PROPERTY_COLORS: Record<string, string> = {
 };
 
 const PROPERTY_LABELS: Record<string, string> = {
-  "position.x": "Position X",
-  "position.y": "Position Y",
-  "scale.x": "Scale X",
-  "scale.y": "Scale Y",
-  rotation: "Rotation",
-  opacity: "Opacity",
-  borderRadius: "Border Radius",
+  "position.x": "timeline.propertyLabels.positionX",
+  "position.y": "timeline.propertyLabels.positionY",
+  "scale.x": "timeline.propertyLabels.scaleX",
+  "scale.y": "timeline.propertyLabels.scaleY",
+  rotation: "timeline.propertyLabels.rotation",
+  opacity: "timeline.propertyLabels.opacity",
+  borderRadius: "timeline.propertyLabels.borderRadius",
 };
 
 interface KeyframeTrackProps {
@@ -48,6 +49,7 @@ export const KeyframeTrack: React.FC<KeyframeTrackProps> = ({
   onKeyframeDelete,
   selectedKeyframeIds,
 }) => {
+  const { t } = useTranslation();
 
   const propertyGroups = useMemo((): PropertyGroup[] => {
     const groups = new Map<string, Keyframe[]>();
@@ -63,7 +65,7 @@ export const KeyframeTrack: React.FC<KeyframeTrackProps> = ({
         property,
         keyframes: keyframes.sort((a, b) => a.time - b.time),
         color: PROPERTY_COLORS[property] || PROPERTY_COLORS.default,
-        label: PROPERTY_LABELS[property] || property,
+        label: t(PROPERTY_LABELS[property] || property),
       }))
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [clip.keyframes]);
@@ -83,7 +85,7 @@ export const KeyframeTrack: React.FC<KeyframeTrackProps> = ({
   if (propertyGroups.length === 0) {
     return (
       <div className="h-8 flex items-center justify-center text-[9px] text-text-muted">
-        No keyframes
+        {t('timeline.noKeyframes')}
       </div>
     );
   }

@@ -126,37 +126,32 @@ export class FFmpegFallback {
   private async doLoad(): Promise<void> {
     try {
       const { FFmpeg } = await import("@ffmpeg/ffmpeg");
-      const { toBlobURL } = await import("@ffmpeg/util");
 
       this.ffmpeg = new FFmpeg() as unknown as FFmpegInstance;
 
       const useMultiThread = typeof crossOriginIsolated !== "undefined" && crossOriginIsolated;
-      const baseURL = useMultiThread
-        ? "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm"
-        : "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 
       if (useMultiThread) {
-        const [coreURL, wasmURL, workerURL] = await Promise.all([
-          toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-          toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-          toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
-        ]);
+        const [coreURL, wasmURL, workerURL] = await this.fetchFFmpegAssets(
+          [
+            ["/ffmpeg-core/ffmpeg-core-mt.js", "text/javascript"],
+            ["/ffmpeg-core/ffmpeg-core-mt.wasm", "application/wasm"],
+            ["/ffmpeg-core/ffmpeg-core-mt.worker.js", "text/javascript"],
+          ],
+          "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm",
+        );
 
-        await this.ffmpeg.load({
-          coreURL,
-          wasmURL,
-          workerURL,
-        });
+        await this.ffmpeg.load({ coreURL, wasmURL, workerURL });
       } else {
-        const [coreURL, wasmURL] = await Promise.all([
-          toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-          toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-        ]);
+        const [coreURL, wasmURL] = await this.fetchFFmpegAssets(
+          [
+            ["/ffmpeg-core/ffmpeg-core.js", "text/javascript"],
+            ["/ffmpeg-core/ffmpeg-core.wasm", "application/wasm"],
+          ],
+          "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm",
+        );
 
-        await this.ffmpeg.load({
-          coreURL,
-          wasmURL,
-        });
+        await this.ffmpeg.load({ coreURL, wasmURL });
       }
 
       this.loaded = true;
@@ -170,6 +165,46 @@ export class FFmpegFallback {
         }`,
       );
     }
+  }
+
+  private async fetchFFmpegAssets(
+    localFiles: [string, string][],
+    cdnBaseURL: string,
+  ): Promise<string[]> {
+    const { toBlobURL } = await import("@ffmpeg/util");
+
+    const localResults = await Promise.allSettled(
+      localFiles.map(([path, mime]) => toBlobURL(path, mime)),
+    );
+
+    const allLocalSucceeded = localResults.every(
+      (r) => r.status === "fulfilled",
+    );
+
+    if (allLocalSucceeded) {
+      return localResults.map((r) => (r as PromiseFulfilledResult<string>).value);
+    }
+
+    console.warn(
+      "[FFmpeg] Local assets unavailable, falling back to CDN:",
+      localResults
+        .filter((r) => r.status === "rejected")
+        .map((r) => (r as PromiseRejectedResult).reason),
+    );
+
+    const cdnFiles = localFiles.map(([localPath]) => {
+      const fileName = localPath.replace("/ffmpeg-core/", "");
+      return fileName;
+    });
+
+    return Promise.all(
+      cdnFiles.map((fileName) => {
+        const mime = fileName.endsWith(".wasm")
+          ? "application/wasm"
+          : "text/javascript";
+        return toBlobURL(`${cdnBaseURL}/${fileName}`, mime);
+      }),
+    );
   }
 
   isLoaded(): boolean {

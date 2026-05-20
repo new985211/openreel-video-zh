@@ -5,6 +5,7 @@ import React, {
   useState,
   useMemo,
 } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Play,
   Pause,
@@ -368,6 +369,7 @@ interface ClipWithPlaceholder {
 }
 
 export const Preview: React.FC = () => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoAreaRef = useRef<HTMLDivElement>(null);
@@ -2264,14 +2266,14 @@ export const Preview: React.FC = () => {
                 ctx.font = "bold 20px Inter, sans-serif";
                 ctx.textAlign = "center";
                 ctx.fillText(
-                  "Drop media here",
+                  t('preview.dropMediaHere'),
                   canvas.width / 2,
                   canvas.height / 2,
                 );
                 ctx.font = "14px Inter, sans-serif";
                 ctx.fillStyle = emptyText;
                 ctx.fillText(
-                  "Replace this placeholder with your content",
+                  t('preview.replacePlaceholder'),
                   canvas.width / 2,
                   canvas.height / 2 + 28,
                 );
@@ -2340,7 +2342,7 @@ export const Preview: React.FC = () => {
         ctx.font = "24px Inter, sans-serif";
         ctx.textAlign = "center";
         ctx.fillText(
-          "Import media to get started",
+          t('preview.importToStart'),
           canvas.width / 2,
           canvas.height / 2,
         );
@@ -5684,10 +5686,10 @@ export const Preview: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-text-primary">
-                      Exporting Video
+                      {t('preview.exportingVideo')}
                     </h3>
                     <p className="text-xs text-text-muted">
-                      {exportState.phase || "Preparing..."}
+                      {exportState.phase || t('preview.preparing')}
                     </p>
                   </div>
                 </div>
@@ -5695,7 +5697,7 @@ export const Preview: React.FC = () => {
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[10px] text-text-secondary">
-                      Export Progress
+                      {t('preview.exportProgress')}
                     </span>
                     <span className="text-[10px] text-text-muted font-mono">
                       {Math.round(exportState.progress)}%
@@ -5710,7 +5712,7 @@ export const Preview: React.FC = () => {
                 </div>
 
                 <p className="text-[10px] text-text-muted text-center">
-                  Please wait while your video is being exported...
+                  {t('preview.pleaseWaitExport')}
                 </p>
               </div>
             </div>
@@ -5734,7 +5736,7 @@ export const Preview: React.FC = () => {
               <div
                 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-primary/80 rounded-full flex items-center justify-center cursor-move pointer-events-auto hover:bg-primary transition-colors"
                 onMouseDown={handleClipMouseDown}
-                title="Drag to move"
+                title={t('preview.dragToMove')}
               >
                 <Move size={14} className="text-white" />
               </div>
@@ -5748,10 +5750,10 @@ export const Preview: React.FC = () => {
                 }`}
                 onClick={() => setLockAspectRatio(!lockAspectRatio)}
                 title={
-                  lockAspectRatio ? "Unlock aspect ratio" : "Lock aspect ratio"
+                  lockAspectRatio ? t('preview.unlockAspectRatio') : t('preview.lockAspectRatio')
                 }
               >
-                {lockAspectRatio ? "🔒 Locked" : "🔓 Free"}
+                {lockAspectRatio ? `🔒 ${t('preview.locked')}` : `🔓 ${t('preview.free')}`}
               </button>
 
               {/* Corner resize handles */}
@@ -5810,7 +5812,7 @@ export const Preview: React.FC = () => {
               <div
                 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-cyan-500/80 rounded-full flex items-center justify-center cursor-move pointer-events-auto hover:bg-cyan-500 transition-colors"
                 onMouseDown={handleTextClipMouseDown}
-                title="Drag to move text"
+                title={t('preview.dragToMoveText')}
               >
                 <Move size={14} className="text-white" />
               </div>
@@ -5824,10 +5826,10 @@ export const Preview: React.FC = () => {
                 }`}
                 onClick={() => setLockAspectRatio(!lockAspectRatio)}
                 title={
-                  lockAspectRatio ? "Unlock aspect ratio" : "Lock aspect ratio"
+                  lockAspectRatio ? t('preview.unlockAspectRatio') : t('preview.lockAspectRatio')
                 }
               >
-                {lockAspectRatio ? "🔒 Locked" : "🔓 Free"}
+                {lockAspectRatio ? `🔒 ${t('preview.locked')}` : `🔓 ${t('preview.free')}`}
               </button>
 
               {/* Corner resize handles */}
@@ -5887,7 +5889,7 @@ export const Preview: React.FC = () => {
               <div
                 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-green-500/80 rounded-full flex items-center justify-center cursor-move pointer-events-auto hover:bg-green-500 transition-colors"
                 onMouseDown={handleShapeClipMouseDown}
-                title="Drag to move shape"
+                title={t('preview.dragToMoveShape')}
               >
                 <Move size={14} className="text-white" />
               </div>
@@ -5901,10 +5903,10 @@ export const Preview: React.FC = () => {
                 }`}
                 onClick={() => setLockAspectRatio(!lockAspectRatio)}
                 title={
-                  lockAspectRatio ? "Unlock aspect ratio" : "Lock aspect ratio"
+                  lockAspectRatio ? t('preview.unlockAspectRatio') : t('preview.lockAspectRatio')
                 }
               >
-                {lockAspectRatio ? "🔒 Locked" : "🔓 Free"}
+                {lockAspectRatio ? `🔒 ${t('preview.locked')}` : `🔓 ${t('preview.free')}`}
               </button>
 
               {/* Corner resize handles */}
@@ -5959,7 +5961,7 @@ export const Preview: React.FC = () => {
               {/* Selection border - yellow/orange for subtitles */}
               <div className="absolute inset-0 border-2 border-yellow-500 rounded-lg pointer-events-none animate-pulse" />
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-yellow-500 rounded text-[10px] font-medium text-black whitespace-nowrap">
-                Subtitle Selected - Edit in Inspector
+                {t('preview.subtitleSelected')}
               </div>
             </div>
           )}
@@ -5988,7 +5990,7 @@ export const Preview: React.FC = () => {
                     aria-hidden="true"
                     className="absolute -top-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/70 rounded text-[10px] text-white whitespace-nowrap"
                   >
-                    Click to select
+                    {t('preview.clickToSelect')}
                   </div>
                 </div>
               );
@@ -6031,7 +6033,7 @@ export const Preview: React.FC = () => {
                   ? "bg-green-500/20 text-green-400"
                   : "bg-gray-500/20 text-gray-400"
               }`}
-              title={`Rendering with ${rendererType.toUpperCase()}`}
+              title={t('preview.renderingWith', { renderer: rendererType.toUpperCase() })}
             >
               {rendererType.toUpperCase()}
             </span>
@@ -6042,14 +6044,14 @@ export const Preview: React.FC = () => {
           <IconButton
             icon={SkipBack}
             onClick={handleSkipBack}
-            title="Skip back 5s"
+            title={t('preview.skipBack')}
           />
           <button
             onClick={() => {
               togglePlayback();
             }}
             disabled={Boolean(playbackLockedReason)}
-            title={playbackLockedReason ?? (isPlaying ? "Pause" : "Play")}
+            title={playbackLockedReason ?? (isPlaying ? t('preview.pause') : t('preview.play'))}
             className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-all ${
               playbackLockedReason
                 ? "bg-background-tertiary text-text-muted cursor-not-allowed shadow-none"
@@ -6067,7 +6069,7 @@ export const Preview: React.FC = () => {
           <IconButton
             icon={SkipForward}
             onClick={handleSkipForward}
-            title="Skip forward 5s"
+            title={t('preview.skipForward')}
           />
         </div>
 
@@ -6088,7 +6090,7 @@ export const Preview: React.FC = () => {
             <button
               onClick={() => setShowZoomMenu(!showZoomMenu)}
               className="px-2 py-1 rounded-lg text-xs font-mono text-text-secondary hover:text-text-primary hover:bg-background-elevated transition-colors"
-              title="Preview Zoom"
+              title={t('preview.previewZoom')}
             >
               <div className="flex items-center gap-1">
                 <ZoomIn size={14} />
@@ -6115,7 +6117,7 @@ export const Preview: React.FC = () => {
                           : "text-text-secondary"
                       }`}
                     >
-                      {opt.label}
+                      {t(`preview.zoomLevels.${Math.round(opt.value * 100)}`)}
                     </button>
                   ))}
                 </div>
@@ -6126,7 +6128,7 @@ export const Preview: React.FC = () => {
           <div className="w-px h-4 bg-border mx-2" />
           <button
             onClick={handleFullscreen}
-            title={isFullscreen ? "Exit Full Screen" : "Full Screen"}
+            title={isFullscreen ? t('preview.exitFullScreen') : t('preview.fullScreen')}
             className={`p-2 rounded-lg transition-colors ${
               isFullscreen
                 ? "text-primary bg-primary/20"
@@ -6137,7 +6139,7 @@ export const Preview: React.FC = () => {
           </button>
           <button
             onClick={handleMaximize}
-            title={isMaximized ? "Restore Size" : "Maximize Preview"}
+            title={isMaximized ? t('preview.restoreSize') : t('preview.maximizePreview')}
             className={`p-2 rounded-lg transition-colors ${
               isMaximized
                 ? "text-primary bg-primary/20"

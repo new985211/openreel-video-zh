@@ -6,6 +6,7 @@ import { useUIStore } from "../../../stores/ui-store";
 import { useTimelineStore } from "../../../stores/timeline-store";
 import { calculateSnap, generateWaveformPath, getClipStyle } from "./utils";
 import { ClipContextMenu } from "./ClipContextMenu";
+import { useTranslation } from "react-i18next";
 import { ContextMenu, ContextMenuTrigger } from "@openreel/ui";
 
 interface ClipComponentProps {
@@ -47,6 +48,7 @@ export const ClipComponent: React.FC<ClipComponentProps> = ({
   onSnapIndicator,
   onTrimClip,
 }) => {
+  const { t } = useTranslation();
   const { getMediaItem } = useProjectStore();
   const { snapSettings } = useUIStore();
   const effectApplicationClipId = useUIStore(
@@ -382,7 +384,7 @@ export const ClipComponent: React.FC<ClipComponentProps> = ({
           <div className="absolute -inset-px rounded-lg border border-amber-300/80 shadow-[0_0_18px_rgba(251,191,36,0.55)] pointer-events-none animate-pulse" />
           <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent_0%,rgba(255,255,255,0.08)_28%,rgba(251,191,36,0.28)_50%,rgba(255,255,255,0.08)_72%,transparent_100%)] pointer-events-none animate-pulse" />
           <div className="absolute top-1 right-1 rounded-full bg-black/70 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.12em] text-amber-200 pointer-events-none">
-            {effectApplicationLabel ?? "Applying effect"}
+            {effectApplicationLabel ?? t('timeline.applyingEffect')}
           </div>
         </>
       )}
@@ -512,7 +514,7 @@ export const ClipComponent: React.FC<ClipComponentProps> = ({
                 key={kf.id}
                 className="absolute w-2 h-2 bg-yellow-400 rotate-45 border border-yellow-600"
                 style={{ left: `${posPercent}%`, marginLeft: "-4px" }}
-                title={`${kf.property} @ ${kf.time.toFixed(2)}s`}
+                title={t('timeline.keyframeTooltip', { property: kf.property, time: kf.time.toFixed(2) })}
               />
             );
           })}
